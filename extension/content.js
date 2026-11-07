@@ -6,8 +6,8 @@
  *   3. Ask background.js for verdicts (AI + IOC + fallback)
  *   4. Reveal anything allowed; annotate the rest with the reason
  *
- * Each element is processed once (WeakSet), so dynamic ads added later are
- * scanned without re-flickering elements we already judged.
+ * Protection can be toggled from the popup. The state lives in
+ * chrome.storage.local under `enabled`; every frame listens for changes.
  *
  * OWNER: Person A.
  */
@@ -15,7 +15,8 @@
   const HIDE = window.AIAdShield.HIDE_CLASS;
   const SAFETY_TIMEOUT_MS = 6000;
 
-  const processed = new WeakSet();
+  const processed = new Set();
+  let enabled = true;
   let debounceTimer = null;
   let safetyTimer = null;
 
@@ -28,8 +29,13 @@
   }
 
   function annotate(el, verdict) {
+    // Preserve any title the page already had so we can restore it later.
+    if (!el.hasAttribute('data-aiadblock-original-title')) {
+      el.setAttribute('data-aiadblock-original-title', el.getAttribute('title') || '');
+    }
     el.dataset.aiadblockVerdict = verdict.verdict;
     el.dataset.aiadblockSeverity = verdict.severity;
+
     const indicators = (verdict.indicators || []).join('\n• ');
     el.title = [
       `AI AdShield: ${verdict.verdict} (${verdict.severity})`,
@@ -40,7 +46,27 @@
       .join('\n');
   }
 
+  function clearAnnotations() {
+    for (const el of document.querySelectorAll('[data-aiadblock-verdict]')) {
+      el.classList.remove(HIDE);
+
+      if (el.hasAttribute('data-aiadblock-original-title')) {
+        const original = el.getAttribute('data-aiadblock-original-title');
+        if (original) el.setAttribute('title', original);
+        else el.removeAttribute('title');
+        el.removeAttribute('data-aiadblock-original-title');
+      }
+
+      delete el.dataset.aiadblockVerdict;
+      delete el.dataset.aiadblockSeverity;
+    }
+    // Also reveal candidates hidden while a verdict was still in flight.
+    for (const el of document.querySelectorAll('.' + HIDE)) el.classList.remove(HIDE);
+  }
+
   async function scan() {
+    if (!enabled) return;
+
     const { candidates, elements } = window.AIAdShield.extractCandidates();
 
     // Only judge elements we have not seen in a previous pass.
@@ -77,6 +103,9 @@
 
     clearTimeout(safetyTimer);
 
+    // Protection was switched off while we were waiting: leave the page alone.
+    if (!enabled) return;
+
     const verdicts = (response && response.verdicts) || [];
     const byId = new Map(verdicts.map((v) => [v.id, v]));
 
@@ -96,17 +125,52 @@
   }
 
   function queueScan() {
+    if (!enabled) return;
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       scan().catch(() => {});
     }, 800);
   }
 
-  function boot() {
+  function setEnabled(next) {
+    if (next === enabled) return;
+    enabled = next;
+
+    clearTimeout(debounceTimer);
+    clearTimeout(safetyTimer);
+
+    if (!enabled) {
+      processed.clear();
+      clearAnnotations();
+      return;
+    }
+
+    // Re-enabling: start from a clean slate and scan the current DOM.
+    processed.clear();
+    clearAnnotations();
     scan().catch(() => {});
+  }
+
+  async function readEnabled() {
+    try {
+      const stored = await chrome.storage.local.get({ enabled: true });
+      return stored.enabled !== false;
+    } catch {
+      return true;
+    }
+  }
+
+  async function boot() {
+    enabled = await readEnabled();
+    if (enabled) scan().catch(() => {});
 
     const observer = new MutationObserver(queueScan);
     observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== 'local' || !('enabled' in changes)) return;
+      setEnabled(changes.enabled.newValue !== false);
+    });
   }
 
   if (document.readyState === 'loading') {

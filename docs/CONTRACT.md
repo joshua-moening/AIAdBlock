@@ -84,6 +84,18 @@ Key: `scan_<tabId>`
 }
 ```
 
+## 3b. Protection state (`chrome.storage.local`)
+
+Key: `enabled` (boolean, default `true`)
+
+- Written by `popup.js` when the switch is toggled.
+- Read by `content.js` on boot (every frame) and again on every change.
+- `background.js` reads it before classifying and mirrors it in the toolbar
+  badge (`OFF` when disabled).
+- When `enabled` flips to `false`, content scripts reveal everything they hid
+  and stop scanning. Flipping back to `true` clears the processed set and
+  rescans the current DOM.
+
 ## 4. Change protocol
 
 1. Announce in team chat what changes.

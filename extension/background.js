@@ -30,6 +30,25 @@ if (chrome.webRequest && chrome.webRequest.onBeforeRedirect) {
 
 const store = chrome.storage.session || chrome.storage.local;
 
+/* Keep the toolbar badge in sync with the protection toggle. */
+async function syncBadge() {
+  try {
+    const stored = await chrome.storage.local.get({ enabled: true });
+    const on = stored.enabled !== false;
+    await chrome.action.setBadgeText({ text: on ? '' : 'OFF' });
+    await chrome.action.setBadgeBackgroundColor({ color: on ? '#2c5a48' : '#6b7280' });
+  } catch (error) {
+    console.warn('[AI AdShield] badge sync failed', error);
+  }
+}
+
+chrome.runtime.onInstalled.addListener(syncBadge);
+chrome.runtime.onStartup.addListener(syncBadge);
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && 'enabled' in changes) syncBadge();
+});
+syncBadge();
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message || message.type !== 'SCAN') return undefined;
   handleScan(message, sender)
@@ -42,6 +61,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 async function handleScan(message, sender) {
+  // Defense in depth: never do work while protection is off.
+  try {
+    const stored = await chrome.storage.local.get({ enabled: true });
+    if (stored.enabled === false) return { verdicts: [] };
+  } catch {
+    // storage unavailable: fail open to the scan rather than break the page
+  }
+
   const tabId = sender.tab?.id;
   const chain = tabId != null ? redirects.get(tabId) || [] : [];
   const redirectChain = chain.slice(-5).map((hop) => hop.to);

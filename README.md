@@ -39,6 +39,8 @@ Demo page: <http://127.0.0.1:8787/demo/>
 
 - The fake "Chrome is out of date" ad is hidden and reported as `malicious`
 - The privacy-policy banner is briefly hidden, then **revealed** (AI says `legit`)
+- The popup switch toggles protection: **off** reveals everything and sets an
+  `OFF` toolbar badge; **on** rescans the page and hides threats again
 - `http://127.0.0.1:8787/health` shows the active mode
 
 ---

@@ -1,4 +1,4 @@
-/* Popup: render the last scan for the active tab.
+/* Popup: protection toggle + render the last scan for the active tab.
  * OWNER: Person C.
  */
 
@@ -12,26 +12,82 @@ const LABELS = {
   legit: 'Legitimate',
 };
 
+const DEFAULT_ENABLED = true;
+
+let activeTab = null;
+let enabled = DEFAULT_ENABLED;
+
 async function main() {
-  const stateEl = document.getElementById('state');
-  const urlEl = document.getElementById('url');
-  const listEl = document.getElementById('list');
-
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  urlEl.textContent = (tab && tab.url) || '';
-  if (!tab) return;
+  activeTab = tab || null;
+  document.getElementById('url').textContent = (tab && tab.url) || '';
 
-  const storage = chrome.storage.session || chrome.storage.local;
-  const key = 'scan_' + tab.id;
-  const data = (await storage.get(key))[key];
+  const stored = await chrome.storage.local.get({ enabled: DEFAULT_ENABLED });
+  enabled = stored.enabled !== false;
+  applyToggleUI();
 
-  if (!data || !Array.isArray(data.verdicts) || !data.verdicts.length) {
-    stateEl.textContent = 'no scan yet';
+  document.getElementById('toggle').addEventListener('click', onToggle);
+
+  if (!enabled) {
+    renderOff();
+    return;
+  }
+  await renderReport();
+}
+
+function applyToggleUI() {
+  const toggle = document.getElementById('toggle');
+  const state = document.getElementById('state');
+  toggle.setAttribute('aria-checked', String(enabled));
+  state.textContent = enabled ? 'on' : 'off';
+  state.classList.toggle('live', enabled);
+  state.classList.toggle('off', !enabled);
+}
+
+async function onToggle() {
+  enabled = !enabled;
+  await chrome.storage.local.set({ enabled });
+  applyToggleUI();
+
+  if (!enabled) {
+    renderOff();
     return;
   }
 
-  stateEl.textContent = 'protected';
-  stateEl.classList.add('live');
+  showMessage('Scanning…');
+  // The content script rescans on its own; give it a beat, then re-read.
+  setTimeout(() => {
+    if (enabled) renderReport().catch(() => {});
+  }, 1200);
+}
+
+function renderOff() {
+  document.getElementById('blocked').textContent = '0';
+  document.getElementById('warned').textContent = '0';
+  document.getElementById('allowed').textContent = '0';
+  showMessage('Protection is off. Ads and threats are not being blocked.');
+}
+
+function showMessage(text) {
+  const listEl = document.getElementById('list');
+  listEl.replaceChildren();
+  const p = document.createElement('p');
+  p.className = 'empty';
+  p.textContent = text;
+  listEl.append(p);
+}
+
+async function renderReport() {
+  if (!enabled || !activeTab) return;
+
+  const storage = chrome.storage.session || chrome.storage.local;
+  const key = 'scan_' + activeTab.id;
+  const data = (await storage.get(key))[key];
+
+  if (!data || !Array.isArray(data.verdicts) || !data.verdicts.length) {
+    showMessage('No scan for this tab yet. Reload the page.');
+    return;
+  }
 
   const counted = count(data.verdicts);
   document.getElementById('blocked').textContent = counted.block;
@@ -42,13 +98,11 @@ async function main() {
     .filter((v) => v.action !== 'allow')
     .sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
 
+  const listEl = document.getElementById('list');
   listEl.replaceChildren();
 
   if (!visible.length) {
-    const p = document.createElement('p');
-    p.className = 'empty';
-    p.textContent = 'Nothing suspicious on this page.';
-    listEl.append(p);
+    showMessage('Nothing suspicious on this page.');
     return;
   }
 
