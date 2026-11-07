@@ -33,8 +33,10 @@
     if (!el.hasAttribute('data-aiadblock-original-title')) {
       el.setAttribute('data-aiadblock-original-title', el.getAttribute('title') || '');
     }
+    el.dataset.aiadblockId = verdict.id;
     el.dataset.aiadblockVerdict = verdict.verdict;
     el.dataset.aiadblockSeverity = verdict.severity;
+    el.dataset.aiadblockAction = verdict.action;
 
     const indicators = (verdict.indicators || []).join('\n• ');
     el.title = [
@@ -59,9 +61,47 @@
 
       delete el.dataset.aiadblockVerdict;
       delete el.dataset.aiadblockSeverity;
+      delete el.dataset.aiadblockId;
+      delete el.dataset.aiadblockAction;
     }
     // Also reveal candidates hidden while a verdict was still in flight.
     for (const el of document.querySelectorAll('.' + HIDE)) el.classList.remove(HIDE);
+    for (const el of document.querySelectorAll('.aiadblock-highlight')) {
+      el.classList.remove('aiadblock-highlight');
+    }
+  }
+
+  /* Reveal one blocked element on request (info button in the popup). */
+  const INSPECT_MS = 8000;
+  let inspectTimer = null;
+
+  function inspect(id) {
+    if (typeof id !== 'string' || !id) return { found: false };
+
+    const el = document.querySelector('[data-aiadblock-id="' + CSS.escape(id) + '"]');
+    if (!el || !el.isConnected) return { found: false };
+
+    // Temporarily show the blocked element, outlined, scrolled into view.
+    el.classList.remove(HIDE);
+    el.classList.add('aiadblock-highlight');
+    try {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch {
+      // non-visual contexts (e.g. some iframes) — the reveal still matters
+    }
+
+    clearTimeout(inspectTimer);
+    inspectTimer = setTimeout(() => {
+      for (const node of document.querySelectorAll('.aiadblock-highlight')) {
+        node.classList.remove('aiadblock-highlight');
+        // Re-hide only blocked/warned items, and only while protection is on.
+        if (enabled && node.dataset.aiadblockAction && node.dataset.aiadblockAction !== 'allow') {
+          node.classList.add(HIDE);
+        }
+      }
+    }, INSPECT_MS);
+
+    return { found: true, verdict: el.dataset.aiadblockVerdict || '' };
   }
 
   async function scan() {
@@ -170,6 +210,15 @@
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== 'local' || !('enabled' in changes)) return;
       setEnabled(changes.enabled.newValue !== false);
+    });
+
+    // The popup asks a tab (all frames) to reveal one specific verdict.
+    // Frames that do not own the element stay silent; the owner responds.
+    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      if (!message || message.type !== 'INSPECT') return undefined;
+      const result = inspect(message.id);
+      if (result.found) sendResponse(result);
+      return false; // synchronous response
     });
   }
 

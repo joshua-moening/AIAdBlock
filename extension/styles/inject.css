@@ -2,3 +2,25 @@
 .aiadblock-hide {
   display: none !important;
 }
+
+/* Review mode: a blocked element temporarily shown by the popup info button. */
+.aiadblock-highlight {
+  position: relative !important;
+  outline: 3px dashed #ff5d5d !important;
+  outline-offset: 4px;
+}
+
+.aiadblock-highlight::after {
+  content: 'AI AdShield — blocked content shown for review';
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translateY(-100%);
+  background: #c62828;
+  color: #fff;
+  padding: 3px 9px;
+  border-radius: 4px;
+  font: 11px/1.5 "Segoe UI", system-ui, sans-serif;
+  white-space: nowrap;
+  z-index: 2147483647;
+}

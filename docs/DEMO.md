@@ -14,13 +14,17 @@
    - `malicious`, severity `high`
    - indicators: brand impersonation, urgency lure, download trigger
    - reason readable in one line.
-4. Point at the **privacy-policy banner** — it is visible. Say:
+4. Click the **eye button** on the malicious verdict: the exact ad appears on
+   the page — outlined in red, labelled "blocked content shown for review" —
+   and re-hides itself 8 seconds later. Say: "Every verdict is traceable to a
+   specific element. Nothing is blocked invisibly."
+5. Point at the **privacy-policy banner** — it is visible. Say:
    "A naive blocker hides this because the class says `banner`. The AI said
    `legit` and revealed it. That's the false-positive problem, solved."
-5. Show the **benign VPN ad** blocked as `benign_ad`.
-6. Kill the classifier (`Ctrl+C` on the server) and reload:
+6. Show the **benign VPN ad** blocked as `benign_ad`.
+7. Kill the classifier (`Ctrl+C` on the server) and reload:
    "Server down — heuristics still block the malicious ad. Fail-safe, not fail-open."
-7. Optional: open `phishing-mock.html` directly and let the extension flag it.
+8. Optional: open `phishing-mock.html` directly and let the extension flag it.
 
 ## Comparison slide
 

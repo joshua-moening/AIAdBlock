@@ -71,6 +71,11 @@ Invariants:
 - Unknown/missing verdict ⇒ content script reveals the element (fail-safe).
 - The server always returns a verdict for every candidate, even in fallback mode.
 
+Each stored verdict may carry a `target` snapshot of the element it judged
+(popup-only, for the info button): `{ tag, role, classes, origin, size, position,
+textSnippet, isIframe, hasDownload, hasPasswordField, formAction, redirectChain }`.
+It is attached by `background.js`, not returned by the classifier.
+
 ## 3. Background → popup (via `chrome.storage.session`)
 
 Key: `scan_<tabId>`
@@ -95,6 +100,28 @@ Key: `enabled` (boolean, default `true`)
 - When `enabled` flips to `false`, content scripts reveal everything they hid
   and stop scanning. Flipping back to `true` clears the processed set and
   rescans the current DOM.
+
+## 3c. Inspect request (popup → content script)
+
+`chrome.tabs.sendMessage(tabId, { type: 'INSPECT', id })` — broadcast to every
+frame in the tab. The frame that owns the element answers synchronously:
+
+```jsonc
+{ "found": true, "verdict": "malicious" }
+```
+
+Frames that do not own the element do not respond at all. No response ⇒ the
+popup marks the button "missing".
+
+Content-script side effects of a successful inspect:
+
+- the element is un-hidden, outlined (`.aiadblock-highlight`) and scrolled into view
+- a label reads "blocked content shown for review"
+- after 8 s the outline is removed and blocked/warned items are re-hidden
+  (only while protection is on)
+
+Element bookkeeping uses `data-aiadblock-id` / `data-aiadblock-action`
+(set when a verdict is applied, removed when protection is toggled off).
 
 ## 4. Change protocol
 

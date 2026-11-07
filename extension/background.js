@@ -98,7 +98,7 @@ async function handleScan(message, sender) {
           tabId,
           url: message.url,
           at: Date.now(),
-          verdicts,
+          verdicts: withTargets(verdicts, candidates),
         },
       });
     } catch (error) {
@@ -107,6 +107,32 @@ async function handleScan(message, sender) {
   }
 
   return { verdicts };
+}
+
+/* Attach a snapshot of the element each verdict judged, for the popup's details view. */
+function withTargets(verdicts, candidates) {
+  const byId = new Map(candidates.map((c) => [c.id, c]));
+  return verdicts.map((v) => {
+    const c = byId.get(v.id);
+    if (!c) return v;
+    return {
+      ...v,
+      target: {
+        tag: c.tag,
+        role: c.role || '',
+        classes: c.classes || [],
+        origin: c.origin || '',
+        size: c.size || '',
+        position: c.position || '',
+        textSnippet: c.textSnippet || '',
+        isIframe: !!c.isIframe,
+        hasDownload: !!c.hasDownload,
+        hasPasswordField: !!c.hasPasswordField,
+        formAction: c.formAction || '',
+        redirectChain: c.redirectChain || [],
+      },
+    };
+  });
 }
 
 /* Last-resort classifier. Must always block the demo's malicious ad. */

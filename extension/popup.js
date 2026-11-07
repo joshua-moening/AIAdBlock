@@ -134,6 +134,9 @@ function renderItem(verdict) {
   const head = document.createElement('div');
   head.className = 'item-head';
 
+  const title = document.createElement('div');
+  title.className = 'item-title';
+
   const name = document.createElement('span');
   name.className = 'verdict';
   name.textContent = LABELS[verdict.verdict] || verdict.verdict;
@@ -142,7 +145,21 @@ function renderItem(verdict) {
   sev.className = 'sev ' + (verdict.severity || 'none');
   sev.textContent = verdict.severity || 'none';
 
-  head.append(name, sev);
+  title.append(name, sev);
+
+  const actions = document.createElement('div');
+  actions.className = 'item-actions';
+
+  const details = document.createElement('button');
+  details.className = 'details-toggle';
+  details.type = 'button';
+  details.textContent = 'i';
+  details.title = 'Show the ad behind this verdict';
+  details.setAttribute('aria-label', 'Show ad details');
+  details.setAttribute('aria-expanded', 'false');
+
+  actions.append(details);
+  head.append(title, actions);
   item.append(head);
 
   if (verdict.reason) {
@@ -163,7 +180,54 @@ function renderItem(verdict) {
     item.append(ul);
   }
 
+  if (verdict.target) {
+    const panel = renderDetails(verdict.target);
+    panel.hidden = true;
+    item.append(panel);
+
+    details.addEventListener('click', () => {
+      const open = panel.hidden;
+      panel.hidden = !open;
+      details.setAttribute('aria-expanded', String(open));
+      details.classList.toggle('active', open);
+    });
+  } else {
+    details.disabled = true;
+    details.title = 'No element details for this verdict';
+  }
+
   return item;
+}
+
+function renderDetails(target) {
+  const flags = [
+    target.isIframe && 'iframe',
+    target.hasDownload && 'download',
+    target.hasPasswordField && 'password field',
+  ].filter(Boolean);
+
+  const rows = [
+    ['Element', target.tag + (target.role ? ` (role: ${target.role})` : '')],
+    ['Source', target.origin || 'inline / same page'],
+    ['Size', target.size || '—'],
+    ['Position', target.position || '—'],
+    ['Classes', target.classes.length ? target.classes.join(' ') : '—'],
+    ['Text', target.textSnippet || '—'],
+    ['Flags', flags.length ? flags.join(', ') : 'none'],
+    ['Redirects', target.redirectChain.length ? target.redirectChain.join(' → ') : 'none'],
+  ];
+  if (target.formAction) rows.push(['Form action', target.formAction]);
+
+  const panel = document.createElement('dl');
+  panel.className = 'details';
+  for (const [label, value] of rows) {
+    const dt = document.createElement('dt');
+    dt.textContent = label;
+    const dd = document.createElement('dd');
+    dd.textContent = value;
+    panel.append(dt, dd);
+  }
+  return panel;
 }
 
 main().catch((error) => {
