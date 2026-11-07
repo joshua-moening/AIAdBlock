@@ -233,5 +233,5 @@ function renderDetails(target) {
 main().catch((error) => {
   const stateEl = document.getElementById('state');
   if (stateEl) stateEl.textContent = 'error';
-  console.error('[AI AdShield] popup failed', error);
+  console.error('[Apollo AdShield] popup failed', error);
 });

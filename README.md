@@ -1,9 +1,9 @@
-# AI AdShield
+# Apollo AdShield
 
 **Hackathon theme:** AI in Cyber Security
 
 A client-side threat-detection layer for untrusted third-party web content.
-Blocklists catch known malicious ads. **AI AdShield uses AI to catch the novel,
+Blocklists catch known malicious ads. **Apollo AdShield uses AI to catch the novel,
 deceptive and malicious ones — and explains why, before they execute.**
 
 ---
@@ -135,6 +135,26 @@ Gemini compat base: `https://generativelanguage.googleapis.com/v1beta/openai`
 Groq base: `https://api.groq.com/openai/v1`
 
 ---
+
+## Privacy
+
+When the AI classifier is enabled, the text snippet (up to 160 characters), tag,
+classes, size, origin, and redirect chain of each ad-like element on a page are
+sent to the model provider configured in `AI_BASE_URL`. Page HTML is never sent.
+Do not use AI mode on pages containing sensitive information unless you have
+reviewed that provider's data terms. Verdicts are cached in memory on the
+classifier server only; nothing is written to disk.
+
+## Scope and limitations
+
+- **Network blocking:** a small bundled `declarativeNetRequest` ruleset
+  (`extension/rules/ad-domains.json`) blocks 14 well-known ad and tracker domains.
+  It is a starter list, not a full filter list.
+- **Filter lists:** EasyList and uBlock syntax are not parsed.
+- **Anti-adblock defusal:** not implemented.
+- **Browsers:** Chrome only (Manifest V3).
+- **Classifier server:** AI verdicts require the local Node server. Without it,
+  the extension uses built-in rules only.
 
 ## Safety
 

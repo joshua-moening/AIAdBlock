@@ -11,6 +11,8 @@
 
 const CLASSIFY_URL = 'http://127.0.0.1:8787/classify';
 const MAX_REDIRECTS_PER_TAB = 20;
+const AD_HOSTS =
+  /doubleclick|googlesyndication|googleadservices|adnxs|taboola|outbrain|criteo|pubmatic|amazon-adsystem|moatads|adsrvr|rubiconproject|openx|casalemedia/i;
 
 /** tabId -> Array<{ from, to, ts }> */
 const redirects = new Map();
@@ -38,7 +40,7 @@ async function syncBadge() {
     await chrome.action.setBadgeText({ text: on ? '' : 'OFF' });
     await chrome.action.setBadgeBackgroundColor({ color: on ? '#2c5a48' : '#6b7280' });
   } catch (error) {
-    console.warn('[AI AdShield] badge sync failed', error);
+    console.warn('[Apollo AdShield] badge sync failed', error);
   }
 }
 
@@ -54,7 +56,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   handleScan(message, sender)
     .then(sendResponse)
     .catch((error) => {
-      console.warn('[AI AdShield] scan failed', error);
+      console.warn('[Apollo AdShield] scan failed', error);
       sendResponse({ verdicts: [] });
     });
   return true; // keep the channel open for the async response
@@ -87,7 +89,7 @@ async function handleScan(message, sender) {
     verdicts = data.verdicts;
     if (!Array.isArray(verdicts)) throw new Error('bad classifier response');
   } catch (error) {
-    console.warn('[AI AdShield] classifier unavailable, using local fallback:', error.message);
+    console.warn('[Apollo AdShield] classifier unavailable, using local fallback:', error.message);
     verdicts = localFallback(candidates);
   }
 
@@ -102,7 +104,7 @@ async function handleScan(message, sender) {
         },
       });
     } catch (error) {
-      console.warn('[AI AdShield] could not persist scan', error);
+      console.warn('[Apollo AdShield] could not persist scan', error);
     }
   }
 
@@ -148,7 +150,7 @@ function localFallback(candidates) {
     const adish =
       /sponsored|advertisement|promoted/.test(text) ||
       /(^|[-_])(ad|ads|sponsor|promo|banner|dfp)/.test(classes) ||
-      c.isIframe;
+      (c.isIframe && AD_HOSTS.test(c.origin || ''));
     // Editorial/legal notices often carry ad-like class names ("banner").
     const notice =
       /privacy policy|terms of service|cookie (settings|policy)|manage (your )?preferences|site notice/.test(

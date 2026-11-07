@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Blocklist test — Apollo AdShield</title>
+  </head>
+  <body>
+    <h1>Blocklist test</h1>
+    <p>
+      With the extension loaded, these requests should be blocked before they leave
+      the browser. In DevTools → Network (tick "Keep log"), they should show as
+      <code>(blocked:other)</code> or failed, not 200.
+    </p>
+    <!-- Harmless 1x1 tracking-pixel style requests to domains in ad-domains.json -->
+    <img src="https://doubleclick.net/pixel.gif?test=1" alt="" width="1" height="1" />
+    <img src="https://adnxs.com/px?test=1" alt="" width="1" height="1" />
+    <img src="https://taboola.com/px?test=1" alt="" width="1" height="1" />
+    <img src="https://criteo.com/px?test=1" alt="" width="1" height="1" />
+  </body>
+</html>

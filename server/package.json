@@ -1,9 +1,9 @@
 {
-  "name": "aiadshield-server",
+  "name": "apollo-adshield-server",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Classifier + demo server for AI AdShield",
+  "description": "Classifier + demo server for Apollo AdShield",
   "scripts": {
     "start": "node classify.js"
   }

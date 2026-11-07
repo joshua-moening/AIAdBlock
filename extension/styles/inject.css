@@ -11,7 +11,7 @@
 }
 
 .aiadblock-highlight::after {
-  content: 'AI AdShield — blocked content shown for review';
+  content: 'Apollo AdShield — blocked content shown for review';
   position: absolute;
   top: 0;
   left: 0;

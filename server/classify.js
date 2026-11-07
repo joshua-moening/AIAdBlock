@@ -1,4 +1,4 @@
-/* AI AdShield classifier server.
+/* Apollo AdShield classifier server.
  *
  *   POST /classify   PageScanRequest -> { verdicts: Verdict[] }
  *   GET  /health     liveness + active mode
@@ -25,6 +25,12 @@ const API_KEY = process.env.AI_API_KEY || '';
 const MODEL = process.env.AI_MODEL || 'gpt-4o-mini';
 
 const MAX_CANDIDATES = 80;
+const CACHE_LIMIT = 200;
+const AD_HOSTS =
+  /doubleclick|googlesyndication|googleadservices|adnxs|taboola|outbrain|criteo|pubmatic|amazon-adsystem|moatads|adsrvr|rubiconproject|openx|casalemedia/i;
+
+/** Verdicts keyed by candidate content (ids excluded), so repeat ads skip the model. */
+const verdictCache = new Map();
 
 const VERDICTS = new Set([
   'malicious',
@@ -147,7 +153,7 @@ function heuristicVerdict(c) {
   const adish =
     /sponsored|advertisement|promoted/.test(text) ||
     /(^|[-_])(ad|ads|sponsor|promo|banner|dfp)/.test(classes) ||
-    c.isIframe;
+    (c.isIframe && AD_HOSTS.test(c.origin || ''));
   // Editorial/legal notices often carry ad-like class names ("banner").
   const notice = /privacy policy|terms of service|cookie (settings|policy)|manage (your )?preferences|site notice/.test(
     text
@@ -219,11 +225,18 @@ async function classify(payload) {
   let verdicts = null;
   let mode = 'heuristic';
 
-  if (API_KEY) {
+  const cacheKey = JSON.stringify(candidates.map(({ id, redirectChain, ...rest }) => rest));
+
+  if (API_KEY && verdictCache.has(cacheKey)) {
+    verdicts = verdictCache.get(cacheKey).map((v, i) => ({ ...v, id: candidates[i].id }));
+    mode = MODEL + ' (cached)';
+  } else if (API_KEY) {
     try {
       const raw = await callModel({ url: payload.url, candidates });
       verdicts = normalize(raw.verdicts, candidates);
       mode = MODEL;
+      verdictCache.set(cacheKey, verdicts.map(({ id, ...rest }) => rest));
+      if (verdictCache.size > CACHE_LIMIT) verdictCache.delete(verdictCache.keys().next().value);
     } catch (error) {
       console.warn('[classify] model failed, falling back:', error.message);
     }
@@ -314,7 +327,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '127.0.0.1', () => {
-  console.log(`\n  AI AdShield classifier on http://127.0.0.1:${PORT}`);
+  console.log(`\n  Apollo AdShield classifier on http://127.0.0.1:${PORT}`);
   console.log(`  Demo page            http://127.0.0.1:${PORT}/demo/`);
   console.log(`  Mode                 ${API_KEY ? MODEL : 'heuristic-fallback (set AI_API_KEY to enable AI)'}`);
   console.log(`  Safe Browsing        ${process.env.SAFE_BROWSING_KEY ? 'enabled' : 'disabled'}\n`);

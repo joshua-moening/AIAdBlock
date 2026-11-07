@@ -1,10 +1,15 @@
 {
   "manifest_version": 3,
-  "name": "AI AdShield",
+  "name": "Apollo AdShield",
   "version": "0.1.0",
   "description": "AI-powered detection of malicious and deceptive ads. Hackathon MVP.",
-  "permissions": ["storage", "webRequest"],
+  "permissions": ["storage", "webRequest", "declarativeNetRequest"],
   "host_permissions": ["<all_urls>"],
+  "declarative_net_request": {
+    "rule_resources": [
+      { "id": "ad_domains", "enabled": true, "path": "rules/ad-domains.json" }
+    ]
+  },
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -15,7 +20,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "AI AdShield",
+    "default_title": "Apollo AdShield",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "icons/icon16.png",
@@ -28,7 +33,7 @@
       "js": ["heuristics.js", "content.js"],
       "css": ["styles/inject.css"],
       "all_frames": true,
-      "run_at": "document_idle"
+      "run_at": "document_start"
     }
   ]
 }

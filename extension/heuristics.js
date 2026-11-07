@@ -1,11 +1,11 @@
 /* Candidate extraction heuristics.
  * Runs in the content-script isolated world before content.js.
- * Exposes window.AIAdShield.extractCandidates().
+ * Exposes window.ApolloAdShield.extractCandidates().
  *
  * OWNER: Person A. Keep this fast (< 15 ms on a normal page).
  */
 (() => {
-  const ns = (window.AIAdShield = window.AIAdShield || {});
+  const ns = (window.ApolloAdShield = window.ApolloAdShield || {});
 
   const MAX_CANDIDATES = 60;
   const MAX_CLASS_SCAN = 3000;
@@ -28,6 +28,11 @@
 
   const DOWNLOAD_SELECTOR =
     'a[download],a[href$=".exe"],a[href$=".dmg"],a[href$=".zip"],a[href$=".msi"]';
+
+  const AD_HOSTS =
+    /doubleclick|googlesyndication|googleadservices|adnxs|taboola|outbrain|criteo|pubmatic|amazon-adsystem|moatads|adsrvr|rubiconproject|openx|casalemedia/i;
+
+  const AD_LABEL = /^(sponsored|advertisement|advertising|promoted)$/i;
 
   let seq = 0;
 
@@ -74,18 +79,12 @@
     }
   }
 
-  function depthOf(el) {
-    let depth = 0;
-    let node = el;
-    while ((node = node.parentElement)) depth += 1;
-    return depth;
-  }
-
   function suspicion(el) {
     let score = 0;
     if (looksAdish(el)) score += 3;
     if (el.matches(AD_SELECTORS)) score += 3;
     if (el.tagName === 'IFRAME') score += 2;
+    if (el.tagName === 'IFRAME' && AD_HOSTS.test(originOf(el))) score += 2;
     if (el.querySelector(DOWNLOAD_SELECTOR)) score += 3;
     if (el.querySelector('input[type="password"]')) score += 2;
     if (/sponsored|advertisement|promoted/i.test(textOf(el))) score += 2;
@@ -111,12 +110,36 @@
       if (looksAdish(el)) found.add(el);
     }
 
-    // Prefer the outermost container: drop candidates nested inside another
-    // candidate, otherwise a single ad slot produces a dozen noisy children.
-    const ordered = [...found].sort((a, b) => depthOf(a) - depthOf(b));
+    // Native ads often have no ad-ish class at all, only a small "Sponsored" label.
+    let labelScanned = 0;
+    for (const el of root.querySelectorAll('span,small,p,div,label,a,strong,em')) {
+      if (++labelScanned > MAX_CLASS_SCAN) break;
+      if (el.children.length > 2) continue;
+      if (AD_LABEL.test((el.textContent || '').trim()) && el.parentElement) {
+        found.add(el.parentElement);
+      }
+    }
+
+    // Keep the outermost container: drop candidates nested inside another
+    // candidate. Document order puts ancestors first, so one walk up from each
+    // element finds any kept ancestor.
+    const ordered = [...found].sort((a, b) =>
+      a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1
+    );
+    const kept = new Set();
     const topLevel = [];
     for (const el of ordered) {
-      if (topLevel.some((outer) => outer !== el && outer.contains(el))) continue;
+      let node = el.parentElement;
+      let nested = false;
+      while (node) {
+        if (kept.has(node)) {
+          nested = true;
+          break;
+        }
+        node = node.parentElement;
+      }
+      if (nested) continue;
+      kept.add(el);
       topLevel.push(el);
     }
 

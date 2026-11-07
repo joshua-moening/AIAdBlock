@@ -3,7 +3,7 @@
 ## The story (30 seconds)
 
 > "Ads are one of the biggest malware delivery vectors on the web. Blocklists
-> stop the ads we already know about. AI AdShield uses AI to stop the ones we
+> stop the ads we already know about. Apollo AdShield uses AI to stop the ones we
 > don't — and tells you exactly why, before they run."
 
 ## The kill chain (90 seconds)
@@ -28,7 +28,7 @@
 
 ## Comparison slide
 
-| | uBlock Origin | AI AdShield |
+| | uBlock Origin | Apollo AdShield |
 | --- | --- | --- |
 | Known ad domains | ✅ | ✅ (via heuristics) |
 | Native / sponsored content | ⚠️ sometimes | ✅ with reason |

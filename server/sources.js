@@ -18,7 +18,7 @@ export async function lookupSafeBrowsing(urls) {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        client: { clientId: 'aiadshield-hackathon', clientVersion: '0.1.0' },
+        client: { clientId: 'apollo-adshield-hackathon', clientVersion: '0.1.0' },
         threatInfo: {
           threatTypes: [
             'MALWARE',

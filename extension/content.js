@@ -12,7 +12,7 @@
  * OWNER: Person A.
  */
 (() => {
-  const HIDE = window.AIAdShield.HIDE_CLASS;
+  const HIDE = window.ApolloAdShield.HIDE_CLASS;
   const SAFETY_TIMEOUT_MS = 6000;
 
   const processed = new Set();
@@ -40,7 +40,7 @@
 
     const indicators = (verdict.indicators || []).join('\n• ');
     el.title = [
-      `AI AdShield: ${verdict.verdict} (${verdict.severity})`,
+      `Apollo AdShield: ${verdict.verdict} (${verdict.severity})`,
       verdict.reason || '',
       indicators ? `• ${indicators}` : '',
     ]
@@ -107,7 +107,7 @@
   async function scan() {
     if (!enabled) return;
 
-    const { candidates, elements } = window.AIAdShield.extractCandidates();
+    const { candidates, elements } = window.ApolloAdShield.extractCandidates();
 
     // Only judge elements we have not seen in a previous pass.
     const fresh = candidates.filter((c) => {
@@ -169,7 +169,7 @@
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
       scan().catch(() => {});
-    }, 800);
+    }, 200);
   }
 
   function setEnabled(next) {
@@ -222,9 +222,5 @@
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot, { once: true });
-  } else {
-    boot();
-  }
+  boot();
 })();
