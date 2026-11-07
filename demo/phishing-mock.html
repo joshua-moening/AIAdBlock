@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chrome Security Update</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        display: grid;
+        min-height: 100vh;
+        margin: 0;
+        place-items: center;
+        background: #f1f3f4;
+        color: #202124;
+        font: 14px/1.5 Arial, "Segoe UI", sans-serif;
+      }
+      .card {
+        width: 380px;
+        padding: 30px 32px;
+        border: 1px solid #dadce0;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      }
+      .mock {
+        margin-bottom: 20px;
+        padding: 8px 10px;
+        border-radius: 5px;
+        background: #fff4e5;
+        color: #8a5a00;
+        font-size: 12px;
+      }
+      h1 {
+        margin: 0 0 6px;
+        font-size: 22px;
+        font-weight: 500;
+      }
+      p {
+        color: #5f6368;
+      }
+      label {
+        display: block;
+        margin: 14px 0 6px;
+        font-weight: 600;
+      }
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #dadce0;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+      button {
+        width: 100%;
+        margin-top: 18px;
+        padding: 11px;
+        border: 0;
+        border-radius: 5px;
+        background: #1a73e8;
+        color: #fff;
+        font-size: 15px;
+        cursor: pointer;
+      }
+      .fineprint {
+        margin-top: 16px;
+        font-size: 11px;
+        color: #80868b;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="mock">
+        HARMLESS MOCK — this form does not submit anywhere and collects nothing.
+        It exists only to demonstrate credential-harvesting detection.
+      </div>
+      <h1>Sign in to finish updating Chrome</h1>
+      <p>Confirm your account to continue the security update.</p>
+
+      <form onsubmit="event.preventDefault(); alert('Mock form — nothing was sent.');">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="off" placeholder="you@example.com" />
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="off" placeholder="••••••••" />
+        <button type="submit">Continue</button>
+      </form>
+
+      <p class="fineprint">
+        This page is part of the AI AdShield hackathon demo. It is not affiliated
+        with Google or Chrome. No data leaves your browser.
+      </p>
+    </main>
+  </body>
+</html>

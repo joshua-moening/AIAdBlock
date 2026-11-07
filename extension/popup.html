@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>AI AdShield</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <span class="shield">◆</span>
+        <h1>AI AdShield</h1>
+      </div>
+      <span id="state" class="pill">idle</span>
+    </header>
+
+    <section class="stats">
+      <div><strong id="blocked">0</strong><span>blocked</span></div>
+      <div><strong id="warned">0</strong><span>warned</span></div>
+      <div><strong id="allowed">0</strong><span>allowed</span></div>
+    </section>
+
+    <main id="list">
+      <p class="empty">No scan for this tab yet. Reload the page.</p>
+    </main>
+
+    <footer id="url"></footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

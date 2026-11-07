@@ -1,0 +1,163 @@
+:root {
+  color-scheme: dark;
+  --bg: #0e1116;
+  --panel: #171c24;
+  --line: #252c37;
+  --text: #e6edf3;
+  --muted: #8b98a9;
+  --crit: #ff5d5d;
+  --high: #ff8a3d;
+  --med: #f2c94c;
+  --low: #6cc4a1;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 360px;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.45 "Segoe UI", system-ui, sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shield {
+  color: #4ea1ff;
+  font-size: 16px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0.2px;
+}
+
+.pill {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.pill.live {
+  color: #6cc4a1;
+  border-color: #2c5a48;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-bottom: 1px solid var(--line);
+}
+
+.stats div {
+  padding: 12px 0;
+  text-align: center;
+  border-right: 1px solid var(--line);
+}
+
+.stats div:last-child {
+  border-right: 0;
+}
+
+.stats strong {
+  display: block;
+  font-size: 20px;
+}
+
+.stats span {
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+main {
+  max-height: 330px;
+  overflow-y: auto;
+}
+
+.empty {
+  margin: 0;
+  padding: 22px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.item {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.verdict {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.sev {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+}
+
+.sev.critical { color: var(--crit); }
+.sev.high { color: var(--high); }
+.sev.medium { color: var(--med); }
+.sev.low { color: var(--low); }
+.sev.none { color: var(--muted); }
+
+.reason {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.indicators {
+  margin: 6px 0 0;
+  padding-left: 16px;
+  color: #b9c4d2;
+}
+
+.indicators li {
+  margin-bottom: 2px;
+}
+
+footer {
+  padding: 9px 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -1,0 +1,4 @@
+/* Applied to elements while the classifier is thinking, and kept for blocked ones. */
+.aiadblock-hide {
+  display: none !important;
+}

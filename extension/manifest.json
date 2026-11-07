@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "AI AdShield",
+  "version": "0.1.0",
+  "description": "AI-powered detection of malicious and deceptive ads. Hackathon MVP.",
+  "permissions": ["storage", "webRequest"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "AI AdShield",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["heuristics.js", "content.js"],
+      "css": ["styles/inject.css"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ]
+}

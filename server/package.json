@@ -1,0 +1,10 @@
+{
+  "name": "aiadshield-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Classifier + demo server for AI AdShield",
+  "scripts": {
+    "start": "node classify.js"
+  }
+}

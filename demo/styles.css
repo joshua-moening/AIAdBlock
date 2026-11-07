@@ -1,0 +1,182 @@
+:root {
+  --ink: #1b1f24;
+  --muted: #66707c;
+  --line: #e2e6eb;
+  --paper: #ffffff;
+  --bg: #f4f6f8;
+  --accent: #0b5fff;
+  --danger: #c62828;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 Georgia, "Times New Roman", serif;
+}
+
+.demo-note {
+  padding: 7px 16px;
+  background: #0e1116;
+  color: #9fb0c4;
+  font: 12px/1.4 "Segoe UI", system-ui, sans-serif;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.site-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 22px 20px 14px;
+  border-bottom: 3px solid var(--ink);
+}
+
+.site-header h1 {
+  margin: 0;
+  font-size: 30px;
+  letter-spacing: -0.5px;
+}
+
+.site-header nav {
+  color: var(--muted);
+  font: 13px/1.4 "Segoe UI", system-ui, sans-serif;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 34px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 26px 20px 50px;
+}
+
+article {
+  background: var(--paper);
+  padding: 28px 32px 34px;
+  border: 1px solid var(--line);
+}
+
+.kicker {
+  margin: 0 0 6px;
+  color: var(--danger);
+  font: 700 12px/1 "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 1.4px;
+}
+
+article h2 {
+  margin: 0 0 8px;
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.byline {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font: 13px/1.4 "Segoe UI", system-ui, sans-serif;
+}
+
+.banner {
+  margin: 20px 0;
+  padding: 14px 18px;
+  border-left: 4px solid var(--accent);
+  background: #eef3ff;
+  font-size: 15px;
+}
+
+/* ---- ad-looking things ---- */
+
+aside {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ad-slot,
+.sponsored-card {
+  position: relative;
+  padding: 16px;
+  background: var(--paper);
+  border: 1px dashed #c9d2dd;
+  font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.ad-label {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.ad-slot h3,
+.sponsored-card h3 {
+  margin: 6px 0;
+  font-size: 17px;
+  line-height: 1.3;
+}
+
+.ad-copy,
+.sponsored-card p,
+.urgent p {
+  margin: 6px 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.ad-link,
+.sponsored-card a {
+  color: var(--accent);
+  font-size: 14px;
+}
+
+.urgent {
+  border: 1px solid #f0c2c2;
+  background: #fff6f6;
+}
+
+.urgent h3 {
+  color: var(--danger);
+}
+
+.urgent .btn {
+  display: inline-block;
+  padding: 9px 16px;
+  border-radius: 5px;
+  background: var(--danger);
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.urgent .tiny {
+  display: block;
+  margin-top: 10px;
+  color: #b26b6b;
+  font-size: 11px;
+}
+
+.site-footer {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 18px 20px 40px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font: 12px/1.4 "Segoe UI", system-ui, sans-serif;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

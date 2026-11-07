@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The Daily Signal — AI AdShield demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="demo-note">
+      DEMO PAGE — every ad and payload here is a harmless local mock. Nothing is collected.
+    </div>
+
+    <header class="site-header">
+      <h1>The Daily Signal</h1>
+      <nav>World &nbsp;·&nbsp; Tech &nbsp;·&nbsp; Security &nbsp;·&nbsp; Opinion</nav>
+    </header>
+
+    <div class="layout">
+      <article>
+        <p class="kicker">SECURITY</p>
+        <h2>Browser extensions are the new frontier for ad-delivered malware</h2>
+        <p class="byline">By A. Reporter · 6 November 2026</p>
+
+        <p>
+          Malicious advertising — malvertising — remains one of the most effective
+          ways to reach users at scale. Attackers buy legitimate ad inventory and
+          swap in creative that impersonates a browser update or an antivirus
+          warning, often redirecting victims to credential-harvesting pages.
+        </p>
+
+        <p>
+          Traditional blocklists catch known bad domains, but a freshly registered
+          lookalike domain can slip through for hours. That gap is where behavioural
+          and AI-assisted detection earns its keep.
+        </p>
+
+        <div class="banner">
+          We have updated our <a href="#">privacy policy</a>. This is site content,
+          not an advertisement.
+        </div>
+
+        <p>
+          The practical defence is layered: block known indicators, score suspicious
+          structure, and explain the decision to the user so they can act on it.
+        </p>
+      </article>
+
+      <aside>
+        <div class="ad-slot" data-ad-slot="top-right">
+          <span class="ad-label">Advertisement</span>
+          <a class="ad-link" href="#">Best VPN of 2026 — 80% off annual plans</a>
+          <p class="ad-copy">Sponsored by a perfectly ordinary VPN company.</p>
+        </div>
+
+        <div class="sponsored-card">
+          <span class="ad-label">Sponsored</span>
+          <h3>Native ad: 10 gadgets you probably don't need</h3>
+          <p>A sponsored card that looks like editorial content.</p>
+          <a href="#">Read more</a>
+        </div>
+
+        <div class="ad-slot urgent" id="malicious-ad" data-ad-slot="sidebar-malicious">
+          <span class="ad-label">System notice</span>
+          <h3>⚠ Your Chrome is out of date</h3>
+          <p>Your browser is missing critical security updates. Update now to stay protected.</p>
+          <a class="btn" href="phishing-mock.html">Update Chrome</a>
+          <a class="tiny" href="chrome-update.exe" download>Download offline installer</a>
+        </div>
+      </aside>
+    </div>
+
+    <footer class="site-footer">
+      <p>© 2026 The Daily Signal — fictional demo publication.</p>
+    </footer>
+  </body>
+</html>
